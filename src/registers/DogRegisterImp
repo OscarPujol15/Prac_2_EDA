@@ -1,0 +1,100 @@
+package registers;
+
+import com.sun.source.util.Trees;
+import dogs.Dog;
+import dogs.DogID;
+import dogs.DogPurpose;
+
+import java.util.*;
+
+
+public class DogRegisterImp implements DogRegister{
+
+    private Map<String,SortedSet<Dog>> dog;
+
+    public DogRegisterImp(){
+        dog = new HashMap<>();
+    }
+
+    @Override
+    public boolean registerOwner(String owner) {
+        if(dog.containsKey(owner)){
+            return false;
+        }
+        dog.put(owner, new TreeSet<Dog>());
+        return true;
+    }
+
+    @Override
+    public boolean registerDog(String owner, Dog dog) throws UnknownOwnerException{
+        if(!(this.dog.containsKey(owner))){
+            throw new UnknownOwnerException("No owner");
+        }
+        TreeSet Aux = (TreeSet)this.dog.get(owner);
+        if (Aux.contains(dog)){
+                    return false;
+        }
+        for(String ownerAux: this.dog.keySet()){
+            for(Dog DogAux: this.dog.get(ownerAux)){
+                if(DogAux.equals(dog)) {
+                    if (!(owner.equals(ownerAux))) {
+                        throw new DifferentOwnerException();
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public String findOwner(DogID id) {
+        for(String ownerAux: this.dog.keySet()){
+            if(this.dog.get(ownerAux).contains(id)){
+                return ownerAux;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public SortedSet<Dog> registeredDogs(String owner) {
+        if (this.dog.containsKey(owner)) {
+            SortedSet<Dog> gossos = this.dog.get(owner);
+            if (gossos != null) {
+                return new TreeSet<>(gossos);
+            }
+
+            return gossos;
+
+        };
+
+        return new TreeSet<>();
+    }
+
+    @Override
+    public SortedSet<String> findPurposeOwners(DogPurpose purpose) {
+        SortedSet<String> propietaris = new TreeSet<>();
+
+        if (purpose == null) {
+            return propietaris;
+        }
+
+
+        for (String propietari : this.dog.keySet()) {
+            // Obtenir el conjunt de gossos del propietari actual
+            SortedSet<Dog> gossos = this.dog.get(propietari);
+
+            // Comprovar si algun gos té el propòsit buscat
+            for (Dog gos : gossos) {
+                if (purpose.equals(gos.getType())) {
+                    // Afegir el propietari al conjunt de resultats
+                    propietaris.add(propietari);
+                    break; // Sortim del bucle de gossos, ja hem trobat un
+                }
+            }
+        }
+
+        return propietaris;
+    }
+}
