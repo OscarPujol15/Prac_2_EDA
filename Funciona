@@ -1,0 +1,89 @@
+package registers;
+
+import dogs.Dog;
+import dogs.DogID;
+import dogs.DogPurpose;
+
+import java.util.*;
+
+public class DogRegisterImp implements DogRegister {
+
+    private Map<String, SortedSet<Dog>> dog;
+
+    public DogRegisterImp() {
+        dog = new HashMap<>();
+    }
+
+    @Override
+    public boolean registerOwner(String owner) {
+        if (dog.containsKey(owner)) {
+            return false;
+        }
+        dog.put(owner, new TreeSet<>());
+        return true;
+    }
+
+    @Override
+    public boolean registerDog(String owner, Dog dog) throws UnknownOwnerException, DifferentOwnerException {
+        if (!this.dog.containsKey(owner)) {
+            throw new UnknownOwnerException("No owner");
+        }
+
+        SortedSet<Dog> aux = this.dog.get(owner);
+        if (aux.contains(dog)) {
+            return false;
+        }
+
+        for (String ownerAux : this.dog.keySet()) {
+            for (Dog dogAux : this.dog.get(ownerAux)) {
+                if (dogAux.equals(dog)) {
+                    if (!owner.equals(ownerAux)) {
+                        throw new DifferentOwnerException();
+                    }
+                }
+            }
+        }
+
+        aux.add(dog);
+        return true;
+    }
+
+    @Override
+    public String findOwner(DogID id) {
+        for (String owner : this.dog.keySet()) {
+            for (Dog dog : this.dog.get(owner)) {
+                if (dog.getId().equals(id)) {
+                    return owner;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public SortedSet<Dog> registeredDogs(String owner) {
+        if (this.dog.containsKey(owner)) {
+            SortedSet<Dog> dogs = this.dog.get(owner);
+            return new TreeSet<>(dogs);
+        }
+        return new TreeSet<>();
+    }
+
+    @Override
+    public SortedSet<String> findPurposeOwners(DogPurpose purpose) {
+        SortedSet<String> owners = new TreeSet<>();
+        if (purpose == null) {
+            return owners;
+        }
+
+        for (String owner : this.dog.keySet()) {
+            for (Dog dog : this.dog.get(owner)) {
+                if (purpose.equals(dog.getType())) {
+                    owners.add(owner);
+                    break;
+                }
+            }
+        }
+        return owners;
+    }
+}
