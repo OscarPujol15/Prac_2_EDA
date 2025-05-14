@@ -70,20 +70,24 @@ public class DogRegisterImp implements DogRegister {
     }
 
     @Override
-    public SortedSet<String> findPurposeOwners(DogPurpose purpose) {
-        SortedSet<String> owners = new TreeSet<>();
-        if (purpose == null) {
-            return owners;
-        }
-
-        for (String owner : this.dog.keySet()) {
-            for (Dog dog : this.dog.get(owner)) {
-                if (purpose.equals(dog.getType())) {
-                    owners.add(owner);
-                    break;
-                }
-            }
-        }
+   public SortedSet<String> findPurposeOwners(DogPurpose purpose) {
+    SortedSet<String> owners = new TreeSet<>();
+    if (purpose == null) {
         return owners;
     }
+
+    for (String owner : this.dog.keySet()) {
+        boolean hasMatchingDog = false;
+        for (Dog dog : this.dog.get(owner)) {
+            if (purpose.equals(dog.getType())) {
+                hasMatchingDog = true;
+            }
+        }
+        if (hasMatchingDog) {
+            owners.add(owner);
+        }
+    }
+
+    return owners;
+}
 }
